@@ -25,10 +25,7 @@ def main():
 
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
 
-    output_video_without_noise = cv2.VideoWriter('output_video_without_noise.avi', fourcc, 20.0, (frame_width,
-                                                                                                  frame_height), 0)
-
-    output_video_with_box = cv2.VideoWriter('output_video_with_box.avi', fourcc, 20.0, (frame_width, frame_height), 0)
+    output_video = cv2.VideoWriter('output_video.avi', fourcc, 20.0, (frame_width * 2, frame_height), 0)
 
     while ret:
 
@@ -72,7 +69,7 @@ def main():
         mask_b_hsv_blur = cv2.medianBlur(mask_b_hsv, 3)
         mask_y_hsv_blur = cv2.medianBlur(mask_y_hsv, 3)
 
-        # mask for box
+        # another mask for box
 
         gray_frame_blur = cv2.GaussianBlur(gray_frame, (7, 7), 1)
         mask_box = cv2.adaptiveThreshold(gray_frame_blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 13, 2)
@@ -123,16 +120,14 @@ def main():
 
                 cv2.putText(final_mask_without_box, 'Circle', (c_x, c_y), font, font_size, color_black)
 
-
         # Display 2 final results
 
-        cv2.imshow('final', final_mask)
-        cv2.imshow('final without box', final_mask_without_box)
+        stack = np.concatenate((final_mask_without_box, final_mask), axis=1)
+        cv2.imshow('final', stack)
 
-        # Save frames
+        # Save frame
 
-        output_video_with_box.write(final_mask)
-        output_video_without_noise.write(final_mask_without_box)
+        output_video.write(stack)
 
         # Pause on pressing of space.
 
@@ -148,8 +143,7 @@ def main():
         frame_count += 1
 
     cap.release()
-    output_video_with_box.release()
-    output_video_without_noise.release()
+    output_video.release()
 
 
 if __name__ == '__main__':
