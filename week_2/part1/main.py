@@ -48,9 +48,9 @@ def shape_detector(frame, masks):
         for contour in contours:
 
             perimeter = cv2.arcLength(contour, closed=True)  # perimeter of contour
-            epslison = 0.04 * perimeter
+            epsilon = 0.04 * perimeter
 
-            approx = cv2.approxPolyDP(contour, epslison, True)  # second parameter in range 0.01 - 0.05
+            approx = cv2.approxPolyDP(contour, epsilon, True)  # second parameter in range 0.01 - 0.05
             # approx - approximate a contour shape to another shape with less number of vertices depending
 
             x1, y1, w, h = cv2.boundingRect(approx)  # get x and y, width and height
@@ -106,14 +106,13 @@ def shape_detector(frame, masks):
                 if key == 'black' or key == 'yellow':  # to avoid black and yellow circles :)
                     continue
 
-                epslison = 0.01 * perimeter  # different epsilon for circles for smooth contours
-                approx = cv2.approxPolyDP(contour, epslison, True)
+                epsilon = 0.01 * perimeter  # different epsilon for circles for smooth contours
+                approx = cv2.approxPolyDP(contour, epsilon, True)
 
                 cv2.drawContours(frame, [approx], -1, color, 2)
                 cv2.putText(frame, 'Circle', (x, y), font, font_size, color)
             else:
                 continue
-
 
     return frame
 
