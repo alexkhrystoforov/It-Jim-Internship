@@ -133,8 +133,8 @@ def main():
     frame_height = frame_shape[0]
     frame_width = frame_shape[1]
 
-    # fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    # output_video = cv2.VideoWriter('output_video.avi', fourcc, 20.0, (frame_width, frame_height), 0)
+    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+    output_video = cv2.VideoWriter('output_video.avi', fourcc, 20.0, (frame_width, frame_height), 0)
 
     while ret:
 
@@ -218,7 +218,7 @@ def main():
 
         # Save frame
 
-        # output_video.write(frame)
+        output_video.write(frame)
 
         # Pause on pressing of space.
 
