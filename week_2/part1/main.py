@@ -13,11 +13,9 @@ color_yellow = (0, 255, 255)
 
 def check_distance(approx):
 
-    ''' The idea was to calculate distance between contours points and then find
+    ''' The idea is to calculate distance between contours points and then find
     difference between the longest and the shortest length between points to avoid
-    stranges shapes.
-    Also helps determine the circles shape, because they have a lot of points and distance
-    between them is small '''
+    strange shapes. '''
 
     length = len(approx)
     status = True
@@ -46,7 +44,10 @@ def check_distance(approx):
         difference = all_dist[-1] - all_dist[0]
         # print(difference)
 
-        if difference > all_dist[0] * 1.8:  # 1.8 - some threshold
+        # 1.8 - threshold helps determine the circles shape, because they have a lot of points and distance
+        # between them is small.
+
+        if difference > all_dist[0] * 1.8:
             status = False
 
     return status
@@ -91,7 +92,7 @@ def shape_detector(frame, masks):
 
             if 0 <= x1 <= 25 or 60 <= y1 <= 75 or 615 <= x1 <= 640 or 380 <= y1 <= 420:
                 continue
-        
+
             M = cv2.moments(contour)  # gives a dictionary of all moment values calculated
 
             # x = int(M["m10"] / M["m00"] // 1.05)  # slightly left of the center
