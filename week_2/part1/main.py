@@ -22,12 +22,9 @@ def check_distance(approx):
     all_dist = []
 
     if length >= 3:
-        for i in range(length + 1):
+        for i in range(length):
 
-            if i == len(approx):
-                continue
-
-            elif i == 0:
+            if i == 0:
                 dist = np.linalg.norm(approx[[0]] - approx[[1]])
                 all_dist.append(dist)
 
@@ -44,10 +41,10 @@ def check_distance(approx):
         difference = all_dist[-1] - all_dist[0]
         # print(difference)
 
-        # 1.8 - threshold helps determine the circles shape, because they have a lot of points and distance
+        # 1.9 - threshold helps determine the circles shape, because they have a lot of points and distance
         # between them is small.
 
-        if difference > all_dist[0] * 1.8:
+        if difference > all_dist[0] * 1.9:
             status = False
 
     return status
@@ -128,7 +125,7 @@ def shape_detector(frame, masks):
                 else:
                     cv2.putText(frame, 'Rectangle', (x, y), font, font_size, color)
 
-            elif len(approx) < 10:
+            elif len(approx) < 14:
 
                 # this is a small crutch, it will work fine without it, if you want check it, just comment 2 lines
                 if key == 'yellow':  # to avoid yellow circles :)
