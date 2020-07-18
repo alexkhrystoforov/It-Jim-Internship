@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import math
 
 
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -12,15 +11,45 @@ color_green = (0, 255, 0)
 color_yellow = (0, 255, 255)
 
 
-def calculate_dist(x1, y1, x2, y2):
+def check_distance(approx):
 
-    ''' The idea was to calculate distance between contours points and then
-    determine the circles shape, because they have a lot of points and distance
+    ''' The idea was to calculate distance between contours points and then find
+    difference between the longest and the shortest length between points to avoid
+    stranges shapes.
+    Also helps determine the circles shape, because they have a lot of points and distance
     between them is small '''
 
-    dist = math.hypot(x2 - x1, y2 - y1)
-    # print(dist)
-    # return dist
+    length = len(approx)
+    status = True
+    all_dist = []
+
+    if length >= 3:
+        for i in range(length + 1):
+
+            if i == len(approx):
+                continue
+
+            elif i == 0:
+                dist = np.linalg.norm(approx[[0]] - approx[[1]])
+                all_dist.append(dist)
+
+            else:
+                dist = np.linalg.norm(approx[[i - 1]] - approx[[i]])
+                all_dist.append(dist)
+
+        all_dist.sort()
+
+        # print(all_dist)
+
+        # difference between the longest and the shortest length between points
+
+        difference = all_dist[-1] - all_dist[0]
+        # print(difference)
+
+        if difference > all_dist[0] * 1.8:  # 1.8 - some threshold
+            status = False
+
+    return status
 
 
 def shape_detector(frame, masks):
@@ -53,20 +82,16 @@ def shape_detector(frame, masks):
             approx = cv2.approxPolyDP(contour, epsilon, True)  # second parameter in range 0.01 - 0.05
             # approx - approximate a contour shape to another shape with less number of vertices depending
 
-            x1, y1, w, h = cv2.boundingRect(approx)  # get x and y, width and height
+            if check_distance(approx) == False:
+                continue
 
-            # print('x', x1)
-            # print('y', y1)
-            # print('w', w)
-            # print('h', h)
+            x1, y1, w, h = cv2.boundingRect(approx)  # get x and y, width and height
 
             # to skip uncertain class
 
             if 0 <= x1 <= 25 or 60 <= y1 <= 75 or 615 <= x1 <= 640 or 380 <= y1 <= 420:
                 continue
-
-            # calculate_dist(approx[[[0]]], approx[[[1]]])
-
+        
             M = cv2.moments(contour)  # gives a dictionary of all moment values calculated
 
             # x = int(M["m10"] / M["m00"] // 1.05)  # slightly left of the center
@@ -83,7 +108,8 @@ def shape_detector(frame, masks):
 
             if len(approx) == 3:
 
-                if key == 'yellow':  # to avoid yellow triangles :)
+                # this is a small crutch, it will work fine without it, if you want check it, just comment 2 lines
+                if key == 'black' or key == 'yellow':  # to avoid black and yellow triangles :)
                     continue
 
                 cv2.drawContours(frame,  [approx], -1, color, 2)
@@ -101,16 +127,21 @@ def shape_detector(frame, masks):
                 else:
                     cv2.putText(frame, 'Rectangle', (x, y), font, font_size, color)
 
-            elif len(approx) < 8:
+            elif len(approx) < 10:
 
-                if key == 'black' or key == 'yellow':  # to avoid black and yellow circles :)
+                # this is a small crutch, it will work fine without it, if you want check it, just comment 2 lines
+                if key == 'yellow':  # to avoid yellow circles :)
                     continue
 
                 epsilon = 0.01 * perimeter  # different epsilon for circles for smooth contours
                 approx = cv2.approxPolyDP(contour, epsilon, True)
 
+                if check_distance(approx) == False:
+                    continue
+
                 cv2.drawContours(frame, [approx], -1, color, 2)
                 cv2.putText(frame, 'Circle', (x, y), font, font_size, color)
+
             else:
                 continue
 
@@ -133,7 +164,7 @@ def main():
     frame_width = frame_shape[1]
 
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    output_video = cv2.VideoWriter('output_video.avi', fourcc, 20.0, (frame_width, frame_height), 0)
+    output_video = cv2.VideoWriter('output_video.avi', fourcc, 20.0, (frame_width, frame_height))
 
     while ret:
 
