@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 
+# variables for text, colors
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 font_size = 0.6
@@ -17,12 +18,11 @@ def check_distance(approx):
     difference between the longest and the shortest length between points to avoid
     strange shapes. '''
 
-    length = len(approx)
     status = True
     all_dist = []
 
-    if length >= 3:
-        for i in range(length):
+    if len(approx) >= 3:
+        for i in range(len(approx)):
 
             if i == 0:
                 dist = np.linalg.norm(approx[[0]] - approx[[1]])
@@ -45,6 +45,38 @@ def check_distance(approx):
         # between them is small.
 
         if difference > all_dist[0] * 1.9:
+            status = False
+
+    return status
+
+
+def check_point(approx):
+
+    ''' The idea is to check is any point of the shape is situated on the border
+    of the frame to ignore uncertain shape. '''
+
+    status = True
+    all_x = []  # store all x coordinates of the one shape in concrete frame
+    all_y = []  # store all y coordinates of the one shape in concrete frame
+
+    black_line = 60  # 60px = black line above and under frame
+
+    for i in range(len(approx)):
+        x = approx[i][0][0]
+        y = approx[i][0][1]
+        all_x.append(x)
+        all_y.append(y)
+
+        if any(x <= 5 for x in all_x):  # 5px - threshold from the border to show the contour
+            status = False
+
+        elif any(x >= 635 for x in all_x):  # 635 = frame_width - 5px
+            status = False
+
+        elif any(y <= black_line + 5 for y in all_y): # 65 = (frame_height + black_line) + 5px
+            status = False
+
+        elif any(y >= 415 for y in all_y):  # 415 = (frame_height - black_line) + 5px
             status = False
 
     return status
@@ -80,15 +112,17 @@ def shape_detector(frame, masks):
             approx = cv2.approxPolyDP(contour, epsilon, True)  # second parameter in range 0.01 - 0.05
             # approx - approximate a contour shape to another shape with less number of vertices depending
 
-            if check_distance(approx) == False:
+            if not check_distance(approx):
                 continue
+
+            if not check_point(approx):
+                continue
+
+            # first attempt to skip uncertain class, but I invent better way ( check_point function )
 
             x1, y1, w, h = cv2.boundingRect(approx)  # get x and y, width and height
-
-            # to skip uncertain class
-
-            if 0 <= x1 <= 25 or 60 <= y1 <= 75 or 615 <= x1 <= 640 or 380 <= y1 <= 420:
-                continue
+            # if 0 <= x1 <= 25 or 60 <= y1 <= 75 or 615 <= x1 <= 640 or 380 <= y1 <= 420:
+            #     continue
 
             M = cv2.moments(contour)  # gives a dictionary of all moment values calculated
 
@@ -134,7 +168,7 @@ def shape_detector(frame, masks):
                 epsilon = 0.01 * perimeter  # different epsilon for circles for smooth contours
                 approx = cv2.approxPolyDP(contour, epsilon, True)
 
-                if check_distance(approx) == False:
+                if not check_distance(approx):
                     continue
 
                 cv2.drawContours(frame, [approx], -1, color, 2)
