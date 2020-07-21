@@ -1,6 +1,7 @@
 import cv2
 import glob
 import numpy as np
+import json
 
 # variables for text, colors
 
@@ -290,7 +291,7 @@ def main():
 
     # When I tried match all templates separately (use code below), I had a much better result than the final.
     # Dont know why.
-    # Maybe because due to color rectangle and symbols description.
+    # Maybe due to color rectangle and symbols description.
     # I tried do match separately doing it on img.copy() instead of img in detect_template() function and then
     # doing bitwise_and
     # But had the same result
@@ -323,6 +324,7 @@ def detect_template(templates, symbols_description, templates_thresh):
 
     image_filename = 'plan.png'
     img = cv2.imread(image_filename)
+    data_for_json = {}
 
     for i in range(len(templates)):
 
@@ -335,15 +337,27 @@ def detect_template(templates, symbols_description, templates_thresh):
             thresh = cv2.threshold(matching, np.max(matching) * templates_thresh[i], 255, cv2.THRESH_BINARY)[1]
             conts, hier = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+            data_for_json[symbols_description[i]] = []
+
             for cnt in conts:
                 x, y, w, h = cv2.boundingRect(cnt)
+
+                # append matched template coordinates to dict
+
+                data_for_json[symbols_description[i]].append({
+                    'top_left': [x, y],
+                    'top_right': [x, y + templates[i][j].shape[0]],
+                    'bottom_left': [x + templates[i][j].shape[1], y],
+                    'bottom_right': [x + templates[i][j].shape[1], y + templates[i][j].shape[0]]
+                })
 
                 cv2.rectangle(img, (x + w, y + h),
                                             (x + w + templates[i][j].shape[1], y + h + templates[i][j].shape[0]),
                                             random_color, 1)
                 cv2.putText(img, symbols_description[i], (x, y), font, font_size, random_color)
 
-                # The idea is to avoid double matching, check is any pixel in nearby area. But it doesnt work... :(
+                # The idea is to avoid double matching, check is any pixel of concrete random_color
+                # in nearby area. But it doesnt work... :(
 
                 # patch = img[y-5:y+5, x-5:x+5]
 
@@ -353,6 +367,9 @@ def detect_template(templates, symbols_description, templates_thresh):
                 #               (x + w + templates[i][j].shape[1], y + h + templates[i][j].shape[0]),
                 #               random_color, 1)
                 # cv2.putText(img, symbols_description[i], (x, y), font, font_size, random_color)
+
+    with open('data.txt', 'w') as outfile:
+        json.dump(data_for_json, outfile)
 
     cv2.namedWindow('Window with example', cv2.WINDOW_NORMAL)
     cv2.imshow('Window with example', img)
