@@ -4,6 +4,10 @@ import random
 from week_3.utils import *
 
 
+font = cv2.FONT_HERSHEY_SIMPLEX
+font_size = 2
+color_red = (0, 0, 255)
+
 class Matcher:
 
     def __init__(self, orb,  frame, marker):
@@ -51,7 +55,7 @@ def main():
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))  # 901 frames
 
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    output_video = cv2.VideoWriter('output_video.avi', fourcc, 20.0, (3680, 720))
+    output_video = cv2.VideoWriter('output_video_ORB.avi', fourcc, 20.0, (3680, 720))
 
     # bbox = cv2.selectROI(frame, False)
 
@@ -60,6 +64,7 @@ def main():
 
     MIN_MATCH_COUNT = 45
     frame_count = 0
+    no_object_count = 0
     key = None
 
     # ORB detector
@@ -124,7 +129,7 @@ def main():
             print('flann_matches avg distance', statistics.mean(matcher2_mean_list[0]))
             print('bf_knn_matches avg distance', statistics.mean(matcher3_mean_list[0]))
 
-        # we conclude that bf_matches find the best matches
+        # We conclude that bf_matches find the best matches
 
         # extract the matched keypoints
 
@@ -146,15 +151,16 @@ def main():
             if check_points(dst):
 
                 draw_params = dict(outImg=None,
-                                   matchColor=(0, 255, 0),  # draw matches in green color
+                                   matchColor=(0, 255, 0),
                                    matchesMask=matchesMask,  # draw only inliers
                                    flags=2)
 
                 result_mathing_bf = cv2.drawMatches(marker, matcher.kp_marker, frame, matcher.kp_frame, bf_matches,
                                                     **draw_params)
 
-                homography = cv2.polylines(frame, [np.int32(dst)], True, [0, 255, 0], 3, cv2.LINE_AA)
+                homography = cv2.polylines(frame, [np.int32(dst)], True, (0, 255, 0), 3, cv2.LINE_AA)
 
+                # testing warps for myself
                 max_extent = np.max(pts, axis=0)[0].astype(np.int)[::-1]
                 sz_out = (max(max_extent[1], marker.shape[1]), max(max_extent[0], marker.shape[0]))
                 warped = cv2.warpPerspective(marker, matrix, dsize=sz_out)
@@ -162,21 +168,25 @@ def main():
                 separetor = np.zeros((720, 560, 3), np.uint8)
                 separetor[:] = (255, 255, 255)
                 homography = np.concatenate((homography, separetor), axis=1)
-                result_mathing_bf = cv2.resize(result_mathing_bf,(1840,720),fx=0,fy=0, interpolation = cv2.INTER_CUBIC)
+                result_mathing_bf = cv2.resize(result_mathing_bf, (1840, 720), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
 
                 stack = np.concatenate((homography, result_mathing_bf), axis=1)
-
 
                 cv2.namedWindow('homography + matches', cv2.WINDOW_NORMAL)
                 cv2.imshow('homography + matches', stack)
             else:
+                no_object_count += 1
+                cv2.putText(frame, 'dont recognize ' + str(no_object_count) + ' times', (100, 100), font, font_size, color_red,
+                            thickness=5)
                 cv2.namedWindow('no object', cv2.WINDOW_NORMAL)
                 cv2.imshow("no object", frame)
 
         else:
 
             # show the frame where we don't track the object ( and we understand why we dont track )
-
+            no_object_count += 1
+            cv2.putText(frame, 'dont recognize ' + str(no_object_count) + ' times', (100, 100), font, font_size, color_red,
+                        thickness=5)
             cv2.namedWindow('no object', cv2.WINDOW_NORMAL)
             cv2.imshow("no object", frame)
 
