@@ -15,12 +15,18 @@ plotter = Plotter(sorted_by_class)
 
 # PLOT CLASSES HISTOGRAMS
 classes_bgr_hist = plotter.plot_3d_hist(color_space='bgr')
+plotter.plot_3d_hist(color_space='bgr')
 classes_hsv_hist = plotter.plot_3d_hist(color_space='hsv')
+plotter.plot_3d_hist(color_space='hsv')
 
 classes_r_hist = plotter.plot_1d_hist(channel='r')
+plotter.plot_1d_hist(channel='r')
 classes_g_hist = plotter.plot_1d_hist(channel='g')
+plotter.plot_1d_hist(channel='g')
 classes_b_hist = plotter.plot_1d_hist(channel='b')
+plotter.plot_1d_hist(channel='b')
 classes_hsv_v_hist = plotter.plot_1d_hist(channel='v')
+plotter.plot_1d_hist(channel='v')
 
 list_all_hists = [
     classes_bgr_hist,
