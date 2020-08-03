@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import statistics
 import json
 from scipy.spatial import distance as dist
-from scipy.stats import chisquare
 
 
 class Plotter:
@@ -21,8 +20,8 @@ class Plotter:
         :return: list of histograms of our concrete channel
         """
         all_hist = []
-        fig, axes = plt.subplots(4, 4, figsize=(20, 12))  # grid of 3x4 subplots
-        axes = axes.flatten()  # reshape from 3x4 array into 12-element vector
+        fig, axes = plt.subplots(4, 4, figsize=(20, 12))  # grid of 4x4 subplots
+        axes = axes.flatten()  # reshape from 4x4 array into 16-element vector
 
         for i in range(len(self.sorted_by_class)):
             sum_img = np.zeros((84, 1), np.uint8)
@@ -61,8 +60,8 @@ class Plotter:
         :return: list of histograms of our concrete color space
         """
         all_hist = []
-        fig, axes = plt.subplots(4, 4, figsize=(20, 12))  # grid of 3x4 subplots
-        axes = axes.flatten()  # reshape from 3x4 array into 12-element vector
+        fig, axes = plt.subplots(4, 4, figsize=(20, 12))  # grid of 4x4 subplots
+        axes = axes.flatten()  # reshape from 4x4 array into 12-element vector
 
         for i in range(len(self.sorted_by_class)):
             sum_img = np.zeros((84, 1, 3), np.uint8)
@@ -79,6 +78,28 @@ class Plotter:
             all_hist.append(hist)
             plt.sca(axes[i])
             axes[i].title.set_text((str(i) + " class, " + str(color_space) + " channels"))
+            plt.plot(hist)
+
+        plt.show()
+
+        return all_hist
+
+    def plot_hog_hists(self, hog):
+        all_hist = []
+        fig, axes = plt.subplots(4, 4, figsize=(20, 12))
+        axes = axes.flatten()  # reshape from 4x4 array into 12-element vector
+
+        for i in range(len(self.sorted_by_class)):
+            sum_img = np.zeros((84, 1, 3), np.uint8)
+
+            for img in self.sorted_by_class[i]:
+                image = cv2.imread(img)
+                sum_img = np.concatenate((image, sum_img), axis=1)
+
+            hist = hog.compute(sum_img, winStride=(8, 8), padding=(8, 8), locations=((10, 20),))
+            all_hist.append(hist)
+            plt.sca(axes[i])
+            axes[i].title.set_text((str(i) + " class,  hog features"))
             plt.plot(hist)
 
         plt.show()
@@ -132,6 +153,42 @@ def filter_for_hist_method(images_hists_sorted_by_class, folder_names, list_all_
 
             for i in range(99):
                 hist = images_hists_sorted_by_class.get(folder)[i]
+                hist = np.array(hist)
+                hist1 = hist_type[folder_names.index(folder)]
+                for key, method in OPENCV_METHODS:
+                    d = cv2.compareHist(np_hist_to_cv(hist), np_hist_to_cv(hist1), method=method)
+                    if key == "Correlation":
+                        all_cor.append(d)
+
+            mean_of_corr = statistics.mean(all_cor)
+            median_of_corr = statistics.median(all_cor)
+
+            statistic_dict[str(q)][folder] = [mean_of_corr, median_of_corr]
+        q += 1
+    return statistic_dict
+
+
+def hog_filter_for_hist_method(images_hog_hists_sorted_by_class, folder_names, list_all_hists):
+    """
+    Go deeper in histograms correlations.
+    Understand with which color space or channel better corr
+
+    :param images_hists_sorted_by_class:
+    :param folder_names:
+    :param list_all_hists:
+    :return:
+    """
+    statistic_dict = {}
+    q = 0
+    for hist_type in list_all_hists:
+        statistic_dict[str(q)] = {}
+
+        for folder in folder_names:
+            statistic_dict[str(q)][folder] = {}
+            all_cor = []
+
+            for i in range(99):
+                hist = images_hog_hists_sorted_by_class.get(folder)[i]
                 hist = np.array(hist)
                 hist1 = hist_type[folder_names.index(folder)]
                 for key, method in OPENCV_METHODS:
@@ -211,7 +268,6 @@ def method_hist(our_image_for_search, folder_names, statistic_dict, classes_hist
 
 
 def get_top_5_images_from_class(potentional_folders, image_for_search_hist):
-
     with open('images_hists_sorted_by_class.json', 'r') as json_file:
         images_hists_sorted_by_class = json.load(json_file)
         images_hists_sorted_by_class = json.loads(images_hists_sorted_by_class)
@@ -239,7 +295,6 @@ def get_top_5_images_from_class(potentional_folders, image_for_search_hist):
 
 
 def show_common_images(images_indexes, potentional_folders, folder_names, sorted_by_class):
-
     images_names = []
     all_images_names = []
     folders_indexes = []
@@ -256,7 +311,41 @@ def show_common_images(images_indexes, potentional_folders, folder_names, sorted
         needed_image = all_images_names[i]
         images_names.append(needed_image)
 
+    stack = np.zeros((84, 5, 3), np.uint8)
+
     for img_name in images_names:
         img = cv2.imread(img_name)
-        cv2.imshow('img', img)
-        cv2.waitKey(0)
+        stack = np.concatenate((stack, img), axis=1)
+
+    cv2.imshow('we found it!', stack)
+    cv2.waitKey(0)
+
+
+def compare_hog_hist(our_image_for_search_hog, all_img_names):
+
+    with open('all_images_hog_hists.json', 'r') as json_file:
+        all_images_hog_hists = json.load(json_file)
+        all_images_hog_hists = json.loads(all_images_hog_hists)
+
+    all_d = []
+    index_counter = 0
+    all_cor = {}
+
+    for hog_hist in all_images_hog_hists:
+        hog_hist = np.array(hog_hist)
+        d = cv2.compareHist(np_hist_to_cv(our_image_for_search_hog), np_hist_to_cv(hog_hist), method=1)
+        all_d.append(d)
+        all_cor[index_counter] = d
+        index_counter += 1
+
+    images_indexes = sorted(all_cor, key=all_cor.get, reverse=False)[:5]
+
+    stack = np.zeros((84, 5, 3), np.uint8)
+    for index in images_indexes:
+        image = cv2.imread(all_img_names[index])
+        stack = np.concatenate((stack, image), axis=1)
+
+    cv2.imshow('we found it', stack)
+    cv2.waitKey(0)
+
+
