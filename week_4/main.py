@@ -77,7 +77,7 @@ status_hist_method, potentional_folders = method_hist(our_image_for_search, fold
 
 if status_hist_method:
     # Works good only for images, where color is obviously good feature, for example:
-    # 780/028.jpg , 792/209.jpg and etc
+    # many images from class 780 , also  792/209.jpg and etc
     print('Our method is histogram comparing')
     print('potentional folders for our img is ', potentional_folders)
     images_indexes = get_top_5_images_from_class(potentional_folders, hist)
