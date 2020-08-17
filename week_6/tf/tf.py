@@ -101,18 +101,8 @@ def train_models():
     x = Dense(168)(x)
     x = Activation("relu")(x)
     x = Dense(336)(x)
-    x = Activation("relu")(x)
-    x = Dense(672)(x)
-    x = Activation("relu")(x)
-    x = Dense(1344)(x)
-    x = Activation("relu")(x)
-    x = Dense(2688)(x)
-    x = Activation("relu")(x)
-    x = Dropout(0.1)(x)
-    x = Dense(5376)(x)
     x = BatchNormalization()(x)
     x = Activation("relu")(x)
-    x = Dropout(0.3)(x)
 
     predictions = Dense(16, activation='softmax')(x)
 
@@ -309,5 +299,5 @@ def infer():
 
 if __name__ == '__main__':
     # train_models()
-    # predict()
-    infer()
+    predict()
+    # infer()

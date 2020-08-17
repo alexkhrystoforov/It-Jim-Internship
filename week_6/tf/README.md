@@ -21,10 +21,10 @@ Our CNN architecture is very similar VGG16.
 
 
 NN on test:
-Accuracy :  0.31562501192092896
-Loss :  2.286170721054077
+Accuracy :  0.34375
+Loss :  2.1824259757995605
 
 
 NN on val:
-Test loss: 1.961135983467102
-Test accuracy: 0.3921568691730499
+Accuracy: 0.4117647111415863
+Loss: 2.011375665664673

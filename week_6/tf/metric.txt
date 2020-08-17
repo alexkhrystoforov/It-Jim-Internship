@@ -2,5 +2,5 @@ First model is CNN
 Second model is NN 
 Accuracy for 1 model on test data is : 0.5375000238418579
 Loss for 1 model on test data is : 1.8387387990951538
-Accuracy for 2 model on test data is : 0.31562501192092896
-Loss for 2 model on test data is : 2.286170721054077
+Accuracy for 2 model on test data is : 0.34375
+Loss for 2 model on test data is : 2.1824259757995605
