@@ -3,10 +3,10 @@ Rotated model loss on normal test is 2.3691630363464355
 Rotated model accuracy on rotated test is :0.9775999784469604
 Rotated model loss on rotated test is 0.06967545300722122
 retrained CNN a):  accuracy on normal test is :0.7775999903678894
-retrained CNN a):  accuracy on normal test is 0.6884655356407166
+retrained CNN a):  loss on normal test is 0.6884655356407166
 retrained CNN a):  accuracy on rotated test is :0.8981999754905701
-retrained CNN a):  accuracy on rotated test is 0.3085591197013855
+retrained CNN a):  loss on rotated test is 0.3085591197013855
 retrained CNN c):  accuracy on normal test is :0.9517999887466431
-retrained CNN c):  accuracy on normal test is 0.1503041535615921
+retrained CNN c):  loss on normal test is 0.1503041535615921
 retrained CNN c):  accuracy on rotated test is :0.539900004863739
-retrained CNN c):  accuracy on rotated test is 1.6575952768325806
+retrained CNN c):  loss on rotated test is 1.6575952768325806

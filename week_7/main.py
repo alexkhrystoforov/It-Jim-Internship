@@ -267,13 +267,13 @@ def predict():
     print('retrained CNN a):  accuracy on normal test is : ', scores[1])
     print('retrained CNN a):  loss on normal test is : ', scores[0])
     f.write('retrained CNN a):  accuracy on normal test is :' + str(scores[1]) + '\n')
-    f.write('retrained CNN a):  accuracy on normal test is ' + str(scores[0]) + '\n')
+    f.write('retrained CNN a):  loss on normal test is ' + str(scores[0]) + '\n')
 
     scores = reconstructed_model.evaluate(x_test_rotated, y_test, batch_size=256)
     print('retrained CNN a):  accuracy on rotated test is : ', scores[1])
     print('retrained CNN a):  loss on rotated test is : ', scores[0])
     f.write('retrained CNN a):  accuracy on rotated test is :' + str(scores[1]) + '\n')
-    f.write('retrained CNN a):  accuracy on rotated test is ' + str(scores[0]) + '\n')
+    f.write('retrained CNN a):  loss on rotated test is ' + str(scores[0]) + '\n')
 
     reconstructed_model = load_model("retrained_CNN_c_model.h5")
 
@@ -281,17 +281,17 @@ def predict():
     print('retrained CNN c):  accuracy on normal test is : ', scores[1])
     print('retrained CNN c):  loss on normal test is : ', scores[0])
     f.write('retrained CNN c):  accuracy on normal test is :' + str(scores[1]) + '\n')
-    f.write('retrained CNN c):  accuracy on normal test is ' + str(scores[0]) + '\n')
+    f.write('retrained CNN c):  loss on normal test is ' + str(scores[0]) + '\n')
 
     scores = reconstructed_model.evaluate(x_test_rotated, y_test, batch_size=256)
     print('retrained CNN c):  accuracy on rotated test is : ', scores[1])
     print('retrained CNN c):  loss on rotated test is : ', scores[0])
     f.write('retrained CNN c):  accuracy on rotated test is :' + str(scores[1]) + '\n')
-    f.write('retrained CNN c):  accuracy on rotated test is ' + str(scores[0]) + '\n')
+    f.write('retrained CNN c):  loss on rotated test is ' + str(scores[0]) + '\n')
 
     f.close()
 
 
 if '__name__' == '__main__':
-    train()
+    # train()
     predict()
