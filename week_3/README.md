@@ -1,6 +1,10 @@
-# dont watch only output_video_ORB
+The task is to track the object (marker.jpg) on the video (find_chocolate.mp4) using two approaches:
+1) tracking by detection using orb features. You need to find homography and use it to draw a plane rectangle on the top of the marker so that it follows the orientation of the marker.
+2) tracking using optical flow (Lucas-Kanade). In this case you initialize the tracker using the ORB features like in the above solution, but after that you update the positioning between the frames using optical flow. The output is to be drawn in the same way as in the approach 1. But it will have different behavior.
 
-script running - show right understanding of lags(pauses) in video, its going on due to showing no object detecting on the frame.
+As an output you should provide two videos obtained using those two approaches.
+
+
 
 Algorithm doesn't recognize object via ORB - 105 times but our plane rectangle on the object was clear.
 I could did more deep tuning for happy mean
