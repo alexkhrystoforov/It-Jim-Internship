@@ -1,0 +1,4 @@
+You have to implement an image classification solution for the same dataset as in HT4. There are 16 folders and 16 corresponding classes. You should reconfigure [manually or by a script] this dataset and split it into three folders (train, validation, test). Feel free to reduce the number of examples for each class in your dataset, if it takes too long to compute on your hardware.
+For this task, you should use extracted features from HT4 and try several classifiers from scikit learn. We encourage you to use such ML tools like ensemble voting, boost, dimensionality reduction, gridsearch for hyperparameters deeptuning™ etc. The more trials you take the more you learn.
+
+As an output, you should provide your dataset, and as much precision metrics [calculated on test images] as you will google (precision, recall, and confusion matrix are required).
